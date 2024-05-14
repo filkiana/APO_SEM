@@ -2,3 +2,6 @@
 depend
 change_me
 connect.gdb
+*.jpg
+*.bmp
+.*
