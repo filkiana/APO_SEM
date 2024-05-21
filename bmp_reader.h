@@ -31,6 +31,6 @@ typedef struct {
 #pragma pack(pop)
 
 gsl_matrix* read_image(const char *filename, int *width, int *height);
-void compute_perspective_transform(const gsl_matrix *src, const gsl_matrix *dst, gsl_matrix *H);
+void save_image(const gsl_matrix *image, const char *filename);
 
 #endif /*BMP_READER_H*/
