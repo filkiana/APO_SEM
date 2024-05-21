@@ -52,12 +52,11 @@ int main(void) {
     gsl_matrix *image_wrapped = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
     apply_perspective_transform(gray_image, H, image_wrapped, width, height);
     
-     unsigned char *mem_base;
+    unsigned char *mem_base;
     unsigned char *parlcd_mem_base;
     uint32_t val_line = 5;
-    int i, j, k;
-    int ptr;
-    unsigned int c;
+    int i;
+
 
     printf("Hello world\n");
 
@@ -87,19 +86,10 @@ int main(void) {
 
   unsigned short * fb = lcd_init(parlcd_mem_base);
 
-  loop_delay.tv_sec = 0;
-  loop_delay.tv_nsec = 150 * 1000 * 1000;
-
+    loop_delay.tv_sec = 0;
+    loop_delay.tv_nsec = 150 * 1000 * 1000;
     //draw an image
-    for (int i = 0; i < A4_HEIGHT; i++) {
-        for (int j = 0; j < A4_WIDTH; j++) {
-            c = (unsigned int)gsl_matrix_get(image_wrapped, i, j);
-            //RGB 565 - 
-            c = lcd_grey((uint8_t)c);
-            lcd_draw_pixel(fb, i, j, c);
-
-        }
-    }
+    lcd_draw_image(fb, A4_WIDTH, A4_HEIGHT, image_wrapped);
     lcd_update_display(fb,parlcd_mem_base);
     clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     save_image(image_wrapped, "wrapped_image.bmp");

@@ -2,6 +2,7 @@
 
 
 
+
 unsigned short * lcd_init(unsigned char *parlcd_mem_base) {
   unsigned short * fb = (unsigned short *)malloc(320 * 480 * 2);
 
@@ -46,4 +47,15 @@ unsigned short lcd_color(uint8_t red, uint8_t green, uint8_t blue) {
   uint8_t green = intensity >> 2; // Scale 0-255 to 0-63
   uint8_t blue = intensity >> 3;  // Scale 0-255 to 0-31
   return lcd_color(red, green, blue);
+}
+
+void lcd_draw_image(unsigned short * fb, int width, int height, gsl_matrix * image){
+  unsigned int c;
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+          c = (unsigned int)gsl_matrix_get(image, i, j);
+          c = lcd_grey((uint8_t)c);
+          lcd_draw_pixel(fb, i, j, c);
+      }
+  }
 }

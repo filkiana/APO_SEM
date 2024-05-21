@@ -5,6 +5,8 @@
 #include "mzapo_phys.h"
 #include "font_types.h"
 #include "mzapo_regs.h"
+
+#include <gsl/gsl_matrix.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -30,4 +32,5 @@ int lcd_char_width(unsigned short *fb,font_descriptor_t* fdes, int ch);
 void lcd_update_display(unsigned short * fb,unsigned char *parlcd_mem_base);
 unsigned short lcd_grey(uint8_t intensity);
 unsigned short lcd_color(uint8_t red, uint8_t green, uint8_t blue);
+void lcd_draw_image(unsigned short * fb, int width, int height, gsl_matrix * image);
 #endif // LCD_H
