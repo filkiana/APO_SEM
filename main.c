@@ -22,62 +22,51 @@
 #include "serialize_lock.h"
 #include "scanner.h"
 #include "bmp_reader.h"
-
+#include "knob.h"
 
 
 int main(void) {
-    int width, height;
-    gsl_matrix *gray_image = read_image("/tmp/filkiana/IMG_6441.bmp", &width, &height);
-    if (!gray_image) return EXIT_FAILURE;
+  int width, height;
+  gsl_matrix *gray_image = read_image("/tmp/filkiana/IMG_6441.bmp", &width, &height);
+  if (!gray_image) return EXIT_FAILURE;
 
-    gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
-    gsl_matrix *dst_mat = gsl_matrix_alloc(4, 2);
-    // 6441
-    gsl_matrix_set(src_mat, 0, 0, 1604); gsl_matrix_set(src_mat, 0, 1, 4032 - 920);
-    gsl_matrix_set(src_mat, 1, 0, 2847); gsl_matrix_set(src_mat, 1, 1, 4032 - 1417);
-    gsl_matrix_set(src_mat, 2, 0, 1457); gsl_matrix_set(src_mat, 2, 1, 4032 - 3162);
-    gsl_matrix_set(src_mat, 3, 0, 77);   gsl_matrix_set(src_mat, 3, 1, 4032 - 2066);
-    // 6437
-    // gsl_matrix_set(src_mat, 0, 0, 890);  gsl_matrix_set(src_mat, 0, 1, 4032 - 620);
-    // gsl_matrix_set(src_mat, 1, 0, 2182); gsl_matrix_set(src_mat, 1, 1, 4032 - 593);
-    // gsl_matrix_set(src_mat, 2, 0, 2853); gsl_matrix_set(src_mat, 2, 1, 4032 - 915);
-    // gsl_matrix_set(src_mat, 3, 0, 110);  gsl_matrix_set(src_mat, 3, 1, 4032 - 964);
+  gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
+  gsl_matrix *dst_mat = gsl_matrix_alloc(4, 2);
+  // 6441
+  // gsl_matrix_set(src_mat, 0, 0, 1604); gsl_matrix_set(src_mat, 0, 1, 4032 - 920);
+  // gsl_matrix_set(src_mat, 1, 0, 2847); gsl_matrix_set(src_mat, 1, 1, 4032 - 1417);
+  // gsl_matrix_set(src_mat, 2, 0, 1457); gsl_matrix_set(src_mat, 2, 1, 4032 - 3162);
+  // gsl_matrix_set(src_mat, 3, 0, 77);   gsl_matrix_set(src_mat, 3, 1, 4032 - 2066);
+  // 6437
+  // gsl_matrix_set(src_mat, 0, 0, 890);  gsl_matrix_set(src_mat, 0, 1, 4032 - 620);
+  // gsl_matrix_set(src_mat, 1, 0, 2182); gsl_matrix_set(src_mat, 1, 1, 4032 - 593);
+  // gsl_matrix_set(src_mat, 2, 0, 2853); gsl_matrix_set(src_mat, 2, 1, 4032 - 915);
+  // gsl_matrix_set(src_mat, 3, 0, 110);  gsl_matrix_set(src_mat, 3, 1, 4032 - 964);
+  gsl_matrix_set(src_mat, 0, 0, 0);        gsl_matrix_set(src_mat, 0, 1, 0);
+  gsl_matrix_set(src_mat, 1, 0, width); gsl_matrix_set(src_mat, 1, 1, 0);
+  gsl_matrix_set(src_mat, 2, 0, width); gsl_matrix_set(src_mat, 2, 1, height);
+  gsl_matrix_set(src_mat, 3, 0, 0);        gsl_matrix_set(src_mat, 3, 1, height);
 
-    gsl_matrix_set(dst_mat, 0, 0, 0);        gsl_matrix_set(dst_mat, 0, 1, 0);
-    gsl_matrix_set(dst_mat, 1, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 1, 1, 0);
-    gsl_matrix_set(dst_mat, 2, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 2, 1, A4_HEIGHT);
-    gsl_matrix_set(dst_mat, 3, 0, 0);        gsl_matrix_set(dst_mat, 3, 1, A4_HEIGHT);
-    gsl_matrix *H = gsl_matrix_alloc(3, 3);
-    compute_perspective_transform(src_mat, dst_mat, H);
-    gsl_matrix *image_wrapped = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
-    apply_perspective_transform(gray_image, H, image_wrapped, width, height);
-    
-    unsigned char *mem_base;
-    unsigned char *parlcd_mem_base;
-    uint32_t val_line = 5;
-    int i;
+  gsl_matrix_set(dst_mat, 0, 0, 0);        gsl_matrix_set(dst_mat, 0, 1, 0);
+  gsl_matrix_set(dst_mat, 1, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 1, 1, 0);
+  gsl_matrix_set(dst_mat, 2, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 2, 1, A4_HEIGHT);
+  gsl_matrix_set(dst_mat, 3, 0, 0);        gsl_matrix_set(dst_mat, 3, 1, A4_HEIGHT);
+  gsl_matrix *H = gsl_matrix_alloc(3, 3);
+  compute_perspective_transform(src_mat, dst_mat, H);
+  gsl_matrix *formatted_image = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
+  apply_perspective_transform(gray_image, H, formatted_image, width, height);
+  gsl_matrix_free(gray_image);    
+  unsigned char *mem_base;
+  unsigned char *parlcd_mem_base;
+  unsigned char* spiled_base;
 
+  spiled_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
+  if (spiled_base == NULL)
+    return 1;
+  mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
 
-    printf("Hello world\n");
-
-    sleep(1);
-
-    /*
-    * Setup memory mapping which provides access to the peripheral
-    * registers region of RGB LEDs, knobs and line of yellow LEDs.
-    */
-    mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
-
-    /* If mapping fails exit with error code */
-    if (mem_base == NULL)
-        exit(1);
- struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
-  for (i = 0; i < 30; i++) {
-    *(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = val_line;
-    val_line <<= 1;
-    printf("LED val 0x%x\n", val_line);
-    clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
-  }
+  if (mem_base == NULL)
+    exit(1);
 
   parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 
@@ -85,22 +74,68 @@ int main(void) {
     exit(1);
 
   unsigned short * fb = lcd_init(parlcd_mem_base);
-
-    loop_delay.tv_sec = 0;
-    loop_delay.tv_nsec = 150 * 1000 * 1000;
-    //draw an image
-    lcd_draw_image(fb, A4_WIDTH, A4_HEIGHT, image_wrapped);
+  struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
+  uint16_t current_blue = *(spiled_base + BLUE_KNOB);
+  uint16_t current_red = *(spiled_base + RED_KNOB);
+  uint16_t current_x = 0;
+  uint16_t current_y = 0;
+  int green_press = 0;
+  int set_points = 0;
+  uint16_t xs[4] = {0};
+  uint16_t ys[4] = {0};
+  while (set_points < 4){
+    lcd_draw_image(fb, A4_WIDTH, A4_HEIGHT, formatted_image);
+    int diff = get_knob_value(spiled_base, BLUE_KNOB, current_blue);
+    current_x += diff;
+    current_blue += diff;
+    diff = get_knob_value(spiled_base, RED_KNOB, current_red);
+    current_y += diff;
+    current_red += diff;
+    if (current_x < 0)
+      current_x = A4_HEIGHT - 1;
+    if(current_x > A4_HEIGHT)
+      current_x = 0;
+    if (current_y < 0)
+      current_y = A4_WIDTH - 1;
+    if(current_y > A4_WIDTH)
+      current_y = 0;
+    
+    printf("x: %d, y: %d\n", current_x, current_y);
+    lcd_draw_pixel(fb, current_x, current_y, lcd_color(127, 0, 0));
     lcd_update_display(fb,parlcd_mem_base);
-    clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
-    save_image(image_wrapped, "wrapped_image.bmp");
+    green_press = (*(volatile uint32_t*)(spiled_base + SPILED_REG_KNOBS_8BIT_o) >> 25) & 1;
+    if (green_press){
+      xs[set_points] = current_x;
+      ys[set_points] = current_y;
+      set_points++;
+      printf("set_points: %d\n", set_points);
+      while (green_press){
+        green_press = (*(volatile uint32_t*)(spiled_base + SPILED_REG_KNOBS_8BIT_o) >> 25) & 1;
+      }
+    }
+  } 
+  for(int i = 0; i < 4; i++){
+    printf("x: %d, y: %d\n", xs[i], ys[i]);
+    gsl_matrix_set(src_mat, i, 0, ys[i]);
+    gsl_matrix_set(src_mat, i, 1, xs[i]);
+  }
+  compute_perspective_transform(src_mat, dst_mat, H);
+  printf("got H\n");
+  gsl_matrix* image_wrapped = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
+  apply_perspective_transform(formatted_image, H, image_wrapped, A4_WIDTH, A4_HEIGHT);
+  printf("got wrapped image\n");
+  lcd_draw_image(fb, A4_WIDTH, A4_HEIGHT, image_wrapped);
+  lcd_update_display(fb,parlcd_mem_base);
+  clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
+  printf("saving image\n");
+  save_image(image_wrapped, "wrapped_image.bmp");
 
-    gsl_matrix_free(src_mat);
-    gsl_matrix_free(dst_mat);
-    gsl_matrix_free(H);
-    gsl_matrix_free(image_wrapped);
-    gsl_matrix_free(gray_image);
-
-    return 0;
+  gsl_matrix_free(src_mat);
+  gsl_matrix_free(dst_mat);
+  gsl_matrix_free(H);
+  gsl_matrix_free(image_wrapped);
+  gsl_matrix_free(formatted_image);
+  return 0;
 }
 
 
