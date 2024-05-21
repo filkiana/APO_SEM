@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+#include "lcd.h"
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
 
-#define A4_WIDTH 1000
-#define A4_HEIGHT 1414
+#define A4_WIDTH 320 //1000
+#define A4_HEIGHT 480 //1414
 
 #pragma pack(push, 1)
 typedef struct {
@@ -37,7 +39,7 @@ typedef struct {
 gsl_matrix* read_image(const char *filename, int *width, int *height) {
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
-        perror("Error opening file");
+        fprintf(stderr,"Error opening file\n");
         return NULL;
     }
 
@@ -209,7 +211,7 @@ void apply_perspective_transform(const gsl_matrix *gray_image, gsl_matrix *H, gs
 
 int main(void) {
     int width, height;
-    gsl_matrix *gray_image = read_image("IMG_6441.bmp", &width, &height);
+    gsl_matrix *gray_image = read_image("/tmp/filkiana/IMG_6441.bmp", &width, &height);
     if (!gray_image) return EXIT_FAILURE;
 
     gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
@@ -233,7 +235,57 @@ int main(void) {
     compute_perspective_transform(src_mat, dst_mat, H);
     gsl_matrix *image_wrapped = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
     apply_perspective_transform(gray_image, H, image_wrapped, width, height);
+    
+     unsigned char *mem_base;
+    unsigned char *parlcd_mem_base;
+    uint32_t val_line = 5;
+    int i, j, k;
+    int ptr;
+    unsigned int c;
 
+    printf("Hello world\n");
+
+    sleep(1);
+
+    /*
+    * Setup memory mapping which provides access to the peripheral
+    * registers region of RGB LEDs, knobs and line of yellow LEDs.
+    */
+    mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
+
+    /* If mapping fails exit with error code */
+    if (mem_base == NULL)
+        exit(1);
+ struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
+  for (i = 0; i < 30; i++) {
+    *(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = val_line;
+    val_line <<= 1;
+    printf("LED val 0x%x\n", val_line);
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
+  }
+
+  parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
+
+  if (parlcd_mem_base == NULL)
+    exit(1);
+
+  unsigned short * fb = lcd_init(parlcd_mem_base);
+
+  loop_delay.tv_sec = 0;
+  loop_delay.tv_nsec = 150 * 1000 * 1000;
+
+    //draw an image
+    for (int i = 0; i < A4_HEIGHT; i++) {
+        for (int j = 0; j < A4_WIDTH; j++) {
+            c = (unsigned int)gsl_matrix_get(image_wrapped, i, j);
+            //RGB 565 - 
+            c = lcd_grey((uint8_t)c);
+            lcd_draw_pixel(fb, i, j, c);
+
+        }
+    }
+    lcd_update_display(fb,parlcd_mem_base);
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     save_image(image_wrapped, "wrapped_image.bmp");
 
     gsl_matrix_free(src_mat);
