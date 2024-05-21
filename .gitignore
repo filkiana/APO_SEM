@@ -5,3 +5,4 @@ connect.gdb
 *.jpg
 *.bmp
 .*
+gsl
