@@ -1,3 +1,6 @@
+#ifndef BMP_READER_H
+#define BMP_READER_H
+
 #include <stdint.h>
 #include <gsl/gsl_matrix.h>
 #define A4_WIDTH 320 //1000
@@ -29,3 +32,5 @@ typedef struct {
 
 gsl_matrix* read_image(const char *filename, int *width, int *height);
 void compute_perspective_transform(const gsl_matrix *src, const gsl_matrix *dst, gsl_matrix *H);
+
+#endif /*BMP_READER_H*/

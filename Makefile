@@ -10,8 +10,8 @@ CXXFLAGS = -g -std=gnu++11 -O1 -Wall
 LDFLAGS += -static -L$(GSL_BUILD_DIR) -lgsl -lgslcblas  -lm 
 LDLIBS += -lrt -lpthread -lgsl -lgslcblas  -lm 
 
-SOURCES = scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c
-TARGET_EXE = scanner
+SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c
+TARGET_EXE = main
 
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
