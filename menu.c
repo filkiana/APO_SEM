@@ -18,7 +18,7 @@ void print_dir(void){
     }
 }
 
-void get_file_name(char **file_name, int file_number){
+void get_file_name(char *file_name, int file_number){
     DIR *d;
     struct dirent *dir;
     d = opendir(APP_DIR);
@@ -28,13 +28,16 @@ void get_file_name(char **file_name, int file_number){
             if (strstr(dir->d_name, ".bmp") || strstr(dir->d_name, ".jpg")) {
                 if (i == file_number) {
                     strncpy(file_name, dir->d_name, 31);
-                    file_name[31] = '\0'; 
+                    file_name[31] = '\0'; // Ensure null-termination
                     break;
                 }
                 i++;
             }
         }
         closedir(d);
+    } else {
+        fprintf(stderr, "Error: could not open directory %s\n", APP_DIR);
+        exit(1);
     }
 }
 

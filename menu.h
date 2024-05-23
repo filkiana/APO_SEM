@@ -10,6 +10,6 @@ void show_menu(void);
 
 void print_dir(void);
 
-void get_file_name(char **file_name, int file_number);
+void get_file_name(char *file_name, int file_number);
 
 #endif // MENU_H
