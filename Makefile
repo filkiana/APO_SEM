@@ -10,7 +10,7 @@ CXXFLAGS = -g -std=gnu++11 -O1 -Wall
 LDFLAGS += -static -L$(GSL_BUILD_DIR) -lgsl -lgslcblas  -lm 
 LDLIBS += -lrt -lpthread -lgsl -lgslcblas  -lm 
 
-SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c knob.c menu.c
+SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c knob.c menu.c font_prop14x16.c
 TARGET_EXE = main
 
 ifeq ($(TARGET_IP),)
@@ -73,7 +73,7 @@ copy-executable: $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) killall gdbserver 1>/dev/null 2>/dev/null || true
 	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) mkdir -p $(TARGET_DIR)
 	scp $(SSH_OPTIONS) $(TARGET_EXE) $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/$(TARGET_EXE)
-	scp $(SSH_OPTIONS) ./IMG_6441.bmp $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/IMG_6441.bmp
+	scp $(SSH_OPTIONS) "./*.bmp" $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/
 run: copy-executable $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) $(TARGET_DIR)/$(TARGET_EXE)
 
