@@ -10,7 +10,7 @@ CXXFLAGS = -g -std=gnu++11 -O1 -Wall
 LDFLAGS += -static -L$(GSL_BUILD_DIR) -lgsl -lgslcblas  -lm 
 LDLIBS += -lrt -lpthread -lgsl -lgslcblas  -lm 
 
-SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c knob.c
+SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c knob.c menu.c
 TARGET_EXE = main
 
 ifeq ($(TARGET_IP),)

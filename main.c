@@ -22,10 +22,12 @@
 #include "serialize_lock.h"
 #include "scanner.h"
 #include "bmp_reader.h"
+#include "menu.h"
 #include "knob.h"
 
 
 int main(void) {
+  print_dir();
   int width, height;
   gsl_matrix *gray_image = read_image("/tmp/filkiana/IMG_6441.bmp", &width, &height);
   if (!gray_image) return EXIT_FAILURE;
