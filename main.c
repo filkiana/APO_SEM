@@ -32,16 +32,7 @@ int main(void) {
 
   gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
   gsl_matrix *dst_mat = gsl_matrix_alloc(4, 2);
-  // 6441
-  // gsl_matrix_set(src_mat, 0, 0, 1604); gsl_matrix_set(src_mat, 0, 1, 4032 - 920);
-  // gsl_matrix_set(src_mat, 1, 0, 2847); gsl_matrix_set(src_mat, 1, 1, 4032 - 1417);
-  // gsl_matrix_set(src_mat, 2, 0, 1457); gsl_matrix_set(src_mat, 2, 1, 4032 - 3162);
-  // gsl_matrix_set(src_mat, 3, 0, 77);   gsl_matrix_set(src_mat, 3, 1, 4032 - 2066);
-  // 6437
-  // gsl_matrix_set(src_mat, 0, 0, 890);  gsl_matrix_set(src_mat, 0, 1, 4032 - 620);
-  // gsl_matrix_set(src_mat, 1, 0, 2182); gsl_matrix_set(src_mat, 1, 1, 4032 - 593);
-  // gsl_matrix_set(src_mat, 2, 0, 2853); gsl_matrix_set(src_mat, 2, 1, 4032 - 915);
-  // gsl_matrix_set(src_mat, 3, 0, 110);  gsl_matrix_set(src_mat, 3, 1, 4032 - 964);
+
   gsl_matrix_set(src_mat, 0, 0, 0);        gsl_matrix_set(src_mat, 0, 1, 0);
   gsl_matrix_set(src_mat, 1, 0, width); gsl_matrix_set(src_mat, 1, 1, 0);
   gsl_matrix_set(src_mat, 2, 0, width); gsl_matrix_set(src_mat, 2, 1, height);
@@ -101,7 +92,7 @@ int main(void) {
       current_y = 0;
     
     printf("x: %d, y: %d\n", current_x, current_y);
-    lcd_draw_pixel(fb, current_x, current_y, lcd_color(127, 0, 0));
+    lcd_draw_plus(fb, current_x, current_y, lcd_color(127, 0, 0));
     lcd_update_display(fb,parlcd_mem_base);
     green_press = (*(volatile uint32_t*)(spiled_base + SPILED_REG_KNOBS_8BIT_o) >> 25) & 1;
     if (green_press){

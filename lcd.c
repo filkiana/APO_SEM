@@ -4,7 +4,7 @@
 
 
 unsigned short * lcd_init(unsigned char *parlcd_mem_base) {
-  unsigned short * fb = (unsigned short *)malloc(320 * 480 * 2);
+  unsigned short * fb = (unsigned short *)malloc(HEIGHT * WIDTH * 2);
 
   if (fb == NULL) {
     perror("Failed to allocate framebuffer");
@@ -15,9 +15,9 @@ unsigned short * lcd_init(unsigned char *parlcd_mem_base) {
 
   // Clear the screen
   parlcd_write_cmd(parlcd_mem_base, 0x2c);
-  for (int i = 0; i < 320; i++) {
-    for (int j = 0; j < 480; j++) {
-      fb[i * 480 + j] = 0;
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      fb[i * WIDTH + j] = 0;
       parlcd_write_data(parlcd_mem_base, 0);
     }
   }
@@ -25,15 +25,26 @@ unsigned short * lcd_init(unsigned char *parlcd_mem_base) {
 }
 
 void lcd_draw_pixel(unsigned short *fb, int x, int y, unsigned short color) {
-  if (x >= 0 && x < 480 && y >= 0 && y < 320) {
-    fb[x + 480 * y] = color;
+  if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+    fb[x + WIDTH * y] = color;
   }
 }
 
+void lcd_draw_plus(unsigned short * fb, int current_x, int current_y, unsigned short color) {
+
+    lcd_draw_pixel(fb, current_x+1, current_y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x-1, current_y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x+2, current_y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x-2, current_y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x, current_y+1, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x, current_y-1, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x, current_y+2, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, current_x, current_y-2, lcd_color(127, 0, 0));
+}
 
 void lcd_update_display(unsigned short * fb,unsigned char *parlcd_mem_base) {
   parlcd_write_cmd(parlcd_mem_base, 0x2c);
-  for (int ptr = 0; ptr < 480 * 320; ptr++) {
+  for (int ptr = 0; ptr < WIDTH * HEIGHT; ptr++) {
     parlcd_write_data(parlcd_mem_base, fb[ptr]);
   }
 }
