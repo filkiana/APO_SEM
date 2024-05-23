@@ -26,15 +26,28 @@
 #include "knob.h"
 
 
-int main(void) {
-  print_dir();
-  int width, height;
-  gsl_matrix *gray_image = read_image("/tmp/filkiana/IMG_6441.bmp", &width, &height);
-  if (!gray_image) return EXIT_FAILURE;
 
+void app_loop(void){
+  print_dir();
+  char file_name[32] = {0};
+  int file_number;
+  printf("choose file: ");
+  scanf("%d", &file_number);
+  get_file_name(&file_name, file_number);
+  int width, height;
+  // concat APP_DIR and file_name
+  char file_path[100] = APP_DIR;
+  strcat(file_path, file_name);
+  printf("file path: %s\n", file_path);
+  gsl_matrix *gray_image = read_image(file_path, &width, &height);
+  
   gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
   gsl_matrix *dst_mat = gsl_matrix_alloc(4, 2);
 
+  if (!gray_image) return EXIT_FAILURE;
+
+ 
+  //transform from width height to WIDTH HEIGHT
   gsl_matrix_set(src_mat, 0, 0, 0);        gsl_matrix_set(src_mat, 0, 1, 0);
   gsl_matrix_set(src_mat, 1, 0, width); gsl_matrix_set(src_mat, 1, 1, 0);
   gsl_matrix_set(src_mat, 2, 0, width); gsl_matrix_set(src_mat, 2, 1, height);
@@ -48,14 +61,14 @@ int main(void) {
   compute_perspective_transform(src_mat, dst_mat, H);
   gsl_matrix *formatted_image = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
   apply_perspective_transform(gray_image, H, formatted_image, width, height);
-  gsl_matrix_free(gray_image);    
-  unsigned char *mem_base;
+  gsl_matrix_free(gray_image);
+unsigned char *mem_base;
   unsigned char *parlcd_mem_base;
   unsigned char* spiled_base;
 
   spiled_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
   if (spiled_base == NULL)
-    return 1;
+    exit(1);
   mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
 
   if (mem_base == NULL)
@@ -128,6 +141,18 @@ int main(void) {
   gsl_matrix_free(H);
   gsl_matrix_free(image_wrapped);
   gsl_matrix_free(formatted_image);
+
+}
+
+
+
+
+
+int main(void) {
+  app_loop();
+  
+    
+  
   return 0;
 }
 
