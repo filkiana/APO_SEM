@@ -25,7 +25,7 @@
 #include "bmp_reader.h"
 #include "menu.h"
 #include "knob.h"
-
+#include "diod.h"
 
 
 void app_loop(void){
@@ -117,7 +117,7 @@ void app_loop(void){
       current_y = A4_WIDTH - 1;
     if(current_y > A4_WIDTH)
       current_y = 0;
-    
+    diod_set_color(spiled_base, gsl_matrix_get(formatted_image, current_x, current_y),gsl_matrix_get(formatted_image, current_x, current_y),gsl_matrix_get(formatted_image, current_x, current_y));
     printf("x: %d, y: %d\n", current_x, current_y);
     lcd_draw_plus(fb, current_x, current_y, lcd_color(127, 0, 0));
     lcd_update_display(fb,parlcd_mem_base);
