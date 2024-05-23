@@ -17,6 +17,7 @@
 #include <unistd.h>
 
 #include "mzapo_parlcd.h"
+#include "font_types.h"
 #include "mzapo_phys.h"
 #include "mzapo_regs.h"
 #include "serialize_lock.h"
@@ -29,40 +30,7 @@
 
 void app_loop(void){
   print_dir();
-  char file_name[32] = {0};
-  int file_number;
-  printf("choose file: ");
-  scanf("%d", &file_number);
-  get_file_name(&file_name, file_number);
-  int width, height;
-  // concat APP_DIR and file_name
-  char file_path[100] = APP_DIR;
-  strcat(file_path, file_name);
-  printf("file path: %s\n", file_path);
-  gsl_matrix *gray_image = read_image(file_path, &width, &height);
-  
-  gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
-  gsl_matrix *dst_mat = gsl_matrix_alloc(4, 2);
-
-  if (!gray_image) return EXIT_FAILURE;
-
- 
-  //transform from width height to WIDTH HEIGHT
-  gsl_matrix_set(src_mat, 0, 0, 0);        gsl_matrix_set(src_mat, 0, 1, 0);
-  gsl_matrix_set(src_mat, 1, 0, width); gsl_matrix_set(src_mat, 1, 1, 0);
-  gsl_matrix_set(src_mat, 2, 0, width); gsl_matrix_set(src_mat, 2, 1, height);
-  gsl_matrix_set(src_mat, 3, 0, 0);        gsl_matrix_set(src_mat, 3, 1, height);
-
-  gsl_matrix_set(dst_mat, 0, 0, 0);        gsl_matrix_set(dst_mat, 0, 1, 0);
-  gsl_matrix_set(dst_mat, 1, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 1, 1, 0);
-  gsl_matrix_set(dst_mat, 2, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 2, 1, A4_HEIGHT);
-  gsl_matrix_set(dst_mat, 3, 0, 0);        gsl_matrix_set(dst_mat, 3, 1, A4_HEIGHT);
-  gsl_matrix *H = gsl_matrix_alloc(3, 3);
-  compute_perspective_transform(src_mat, dst_mat, H);
-  gsl_matrix *formatted_image = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
-  apply_perspective_transform(gray_image, H, formatted_image, width, height);
-  gsl_matrix_free(gray_image);
-unsigned char *mem_base;
+  unsigned char *mem_base;
   unsigned char *parlcd_mem_base;
   unsigned char* spiled_base;
 
@@ -81,6 +49,50 @@ unsigned char *mem_base;
 
   unsigned short * fb = lcd_init(parlcd_mem_base);
   struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
+
+  lcd_fill_screen(fb, lcd_color(255,255,255));
+  lcd_update_display(fb,parlcd_mem_base);
+
+  lcd_draw_text(fb, 10, 20, &font_winFreeSystem14x16, "Choose file", lcd_color(0, 0, 0), 5);
+  lcd_update_display(fb,parlcd_mem_base);
+
+
+  char file_name[32] = {0};
+  int file_number;
+  printf("choose file: ");
+  scanf("%d", &file_number);
+  get_file_name(file_name, file_number);
+  int width, height;
+  // concat APP_DIR and file_name
+  char file_path[100] = APP_DIR;
+  strcat(file_path, file_name);
+  printf("file path: %s\n", file_path);
+  gsl_matrix *gray_image = read_image(file_path, &width, &height);
+  
+  gsl_matrix *src_mat = gsl_matrix_alloc(4, 2);
+  gsl_matrix *dst_mat = gsl_matrix_alloc(4, 2);
+
+  if (!gray_image) return exit(1);
+
+ 
+  //transform from width height to WIDTH HEIGHT
+  gsl_matrix_set(src_mat, 0, 0, 0);        gsl_matrix_set(src_mat, 0, 1, 0);
+  gsl_matrix_set(src_mat, 1, 0, width); gsl_matrix_set(src_mat, 1, 1, 0);
+  gsl_matrix_set(src_mat, 2, 0, width); gsl_matrix_set(src_mat, 2, 1, height);
+  gsl_matrix_set(src_mat, 3, 0, 0);        gsl_matrix_set(src_mat, 3, 1, height);
+
+  gsl_matrix_set(dst_mat, 0, 0, 0);        gsl_matrix_set(dst_mat, 0, 1, 0);
+  gsl_matrix_set(dst_mat, 1, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 1, 1, 0);
+  gsl_matrix_set(dst_mat, 2, 0, A4_WIDTH); gsl_matrix_set(dst_mat, 2, 1, A4_HEIGHT);
+  gsl_matrix_set(dst_mat, 3, 0, 0);        gsl_matrix_set(dst_mat, 3, 1, A4_HEIGHT);
+  gsl_matrix *H = gsl_matrix_alloc(3, 3);
+  compute_perspective_transform(src_mat, dst_mat, H);
+  gsl_matrix *formatted_image = gsl_matrix_alloc(A4_HEIGHT, A4_WIDTH);
+  apply_perspective_transform(gray_image, H, formatted_image, width, height);
+  gsl_matrix_free(gray_image);
+
+
+ 
   uint16_t current_blue = *(spiled_base + BLUE_KNOB);
   uint16_t current_red = *(spiled_base + RED_KNOB);
   uint16_t current_x = 0;
@@ -141,7 +153,6 @@ unsigned char *mem_base;
   gsl_matrix_free(H);
   gsl_matrix_free(image_wrapped);
   gsl_matrix_free(formatted_image);
-
 }
 
 
@@ -149,42 +160,11 @@ unsigned char *mem_base;
 
 
 int main(void) {
+  
+
   app_loop();
   
     
   
   return 0;
 }
-
-
-
-
-
-
-// int main(int argc, char *argv[])
-// {
-
-//   /* Serialize execution of applications */
-
-//   /* Try to acquire lock the first */
-//   if (serialize_lock(1) <= 0) {
-//     printf("System is occupied\n");
-
-//     if (1) {
-//       printf("Waitting\n");
-//       /* Wait till application holding lock releases it or exits */
-//       serialize_lock(0);
-//     }
-//   }
-
-//   printf("Hello world\n");
-
-//   sleep(4);
-
-//   printf("Goodbye world\n");
-
-//   /* Release the lock */
-//   serialize_unlock();
-
-//   return 0;
-// }
