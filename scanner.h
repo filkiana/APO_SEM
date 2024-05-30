@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "lcd.h"
-#include "bmp_reader.h"
+#include "img_reader.h"
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_linalg.h>

@@ -9,7 +9,7 @@ void print_dir(void){
     if (d) {
         int i = 1;
         while ((dir = readdir(d)) != NULL) {
-            if (strstr(dir->d_name, ".bmp") || strstr(dir->d_name, ".jpg")) {
+            if (strstr(dir->d_name, ".jpeg") || strstr(dir->d_name, ".jpg")) {
                 printf("%d. %s\n", i, dir->d_name);
                 i++;
             }
@@ -25,7 +25,7 @@ void get_file_name(char *file_name, int file_number){
     if (d) {
         int i = 1;
         while ((dir = readdir(d)) != NULL) {
-            if (strstr(dir->d_name, ".bmp") || strstr(dir->d_name, ".jpg")) {
+            if (strstr(dir->d_name, ".jpeg") || strstr(dir->d_name, ".jpg")) {
                 if (i == file_number) {
                     strncpy(file_name, dir->d_name, 31);
                     file_name[31] = '\0'; // Ensure null-termination

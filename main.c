@@ -22,10 +22,10 @@
 #include "mzapo_regs.h"
 #include "serialize_lock.h"
 #include "scanner.h"
-#include "bmp_reader.h"
+#include "img_reader.h"
 #include "menu.h"
 #include "knob.h"
-
+#include "diod.h"
 
 
 void app_loop(void){
@@ -117,7 +117,7 @@ void app_loop(void){
       current_y = A4_WIDTH - 1;
     if(current_y > A4_WIDTH)
       current_y = 0;
-    
+    diod_set_color(spiled_base, gsl_matrix_get(formatted_image, current_x, current_y),gsl_matrix_get(formatted_image, current_x, current_y),gsl_matrix_get(formatted_image, current_x, current_y));
     printf("x: %d, y: %d\n", current_x, current_y);
     lcd_draw_plus(fb, current_x, current_y, lcd_color(127, 0, 0));
     lcd_update_display(fb,parlcd_mem_base);
@@ -146,7 +146,7 @@ void app_loop(void){
   lcd_update_display(fb,parlcd_mem_base);
   clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
   printf("saving image\n");
-  save_image(image_wrapped, "wrapped_image.bmp");
+  save_image(image_wrapped, "wrapped_image.jpg");
 
   gsl_matrix_free(src_mat);
   gsl_matrix_free(dst_mat);
