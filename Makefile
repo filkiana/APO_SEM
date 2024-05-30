@@ -3,21 +3,23 @@ CXX = arm-linux-gnueabihf-g++
 
 GSL_DIR = ./gsl
 GSL_BUILD_DIR = $(GSL_DIR)/build
+JPEG_DIR = ./jpeg-9f
+JPEG_BUILD_DIR = $(JPEG_DIR)/build
 NO_AMPL_BINDINGS = 1
-CPPFLAGS = -I$(GSL_BUILD_DIR)
+CPPFLAGS = -I$(GSL_BUILD_DIR) -I$(JPEG_BUILD_DIR)/include
 CFLAGS = -g -std=gnu99 -O1 -Wall
 CXXFLAGS = -g -std=gnu++11 -O1 -Wall
-LDFLAGS += -static -L$(GSL_BUILD_DIR) -lgsl -lgslcblas  -lm 
-LDLIBS += -lrt -lpthread -lgsl -lgslcblas  -lm 
+LDFLAGS += -static -L$(GSL_BUILD_DIR) -L$(JPEG_BUILD_DIR)/lib  -lgsl -lgslcblas -lm -ljpeg
+LDLIBS += -lrt -lpthread -lgsl -lgslcblas  -lm -ljpeg
 
-SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c bmp_reader.c knob.c menu.c font_prop14x16.c diod.c
+SOURCES = main.c scanner.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c lcd.c img_reader.c knob.c menu.c font_prop14x16.c diod.c
 TARGET_EXE = main
 
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
-$(warning Run as "TARGET_IP=192.168.223.106 make run" or modify Makefile)
-TARGET_IP = 192.168.223.106
+$(warning Run as "TARGET_IP=192.168.223.213 make run" or modify Makefile)
+TARGET_IP = 192.168.223.213
 endif
 endif
 TARGET_DIR ?= /tmp/$(shell whoami)
@@ -73,7 +75,7 @@ copy-executable: $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) killall gdbserver 1>/dev/null 2>/dev/null || true
 	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) mkdir -p $(TARGET_DIR)
 	scp $(SSH_OPTIONS) $(TARGET_EXE) $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/$(TARGET_EXE)
-	scp $(SSH_OPTIONS) *.bmp $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/
+	scp $(SSH_OPTIONS) *.jp?g $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/
 run: copy-executable $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) $(TARGET_DIR)/$(TARGET_EXE)
 
