@@ -1,5 +1,14 @@
+/**
+ * @file scanner.c
+ * @brief Implementation of matrix and transformation functions.
+ */
 #include "scanner.h"
-
+/**
+ * @brief Print a matrix to the console.
+ *
+ * @param m The matrix to print.
+ * @param name The name of the matrix.
+ */
 void print_matrix(const gsl_matrix *m, const char *name) {
     printf("Matrix %s:\n", name);
     for (size_t i = 0; i < m->size1; i++) {
@@ -11,6 +20,13 @@ void print_matrix(const gsl_matrix *m, const char *name) {
 }
 
 
+/**
+ * @brief Compute the perspective transform matrix.
+ *
+ * @param src The source points matrix.
+ * @param dst The destination points matrix.
+ * @param H The homography matrix.
+ */
 void compute_perspective_transform(const gsl_matrix *src, const gsl_matrix *dst, gsl_matrix *H) {
     gsl_matrix *A = gsl_matrix_calloc(9, 9);
     for (int i = 0; i < 4; i++) {
@@ -57,7 +73,15 @@ void compute_perspective_transform(const gsl_matrix *src, const gsl_matrix *dst,
     gsl_vector_free(work);
 }
 
-
+/**
+ * @brief Apply a perspective transform to an image.
+ *
+ * @param gray_image The source grayscale image matrix.
+ * @param H The homography matrix.
+ * @param image_wrapped The destination image matrix.
+ * @param width The width of the source image.
+ * @param height The height of the source image.
+ */
 void apply_perspective_transform(const gsl_matrix *gray_image, gsl_matrix *H, gsl_matrix *image_wrapped, int width, int height) {
     gsl_matrix *M = gsl_matrix_alloc(3, 3);
     gsl_matrix_memcpy(M, H);

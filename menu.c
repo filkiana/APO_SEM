@@ -1,7 +1,13 @@
+/**
+ * @file menu.c
+ * @brief Implementation of menu functions.
+ */
 #include "menu.h"
 
 
-// read all images(*,jpg or *.bmp) in dir and print it as numbered list. 
+/**
+ * @brief Print all images in the directory.
+ */ 
 void print_dir(void){
     DIR *d;
     struct dirent *dir;
@@ -18,6 +24,12 @@ void print_dir(void){
     }
 }
 
+/**
+ * @brief Get the name of a file by its number in the list.
+ *
+ * @param file_name Buffer to store the file name.
+ * @param file_number The number of the file in the list.
+ */
 void get_file_name(char *file_name, int file_number){
     DIR *d;
     struct dirent *dir;

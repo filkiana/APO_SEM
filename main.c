@@ -7,7 +7,10 @@
   Author: Anatolii Filkin, 2024
   License: MIT License
  *******************************************************************/
-
+/**
+ * @file main.c
+ * @brief Main file for the MicroZed based MZ_APO board project.
+ */
 #define _POSIX_C_SOURCE 200112L
 
 #include <stdlib.h>
@@ -34,7 +37,9 @@ void load_image(const char* file_path, gsl_matrix** gray_image, int* width, int*
 void transform_image(gsl_matrix* src_mat, gsl_matrix* dst_mat, gsl_matrix* H, int width, int height);
 void capture_points(uint16_t* xs, uint16_t* ys, unsigned char* spiled_base, unsigned short* fb, gsl_matrix* formatted_image, unsigned char* parlcd_mem_base);
 void save_transformed_image(const gsl_matrix* image, const char* filename);
-
+/**
+ * @brief Application loop.
+ */
 void app_loop(void) {
   print_dir();
 
@@ -91,13 +96,24 @@ void app_loop(void) {
   gsl_matrix_free(image_wrapped);
   gsl_matrix_free(formatted_image);
 }
-
+/**
+ * @brief Initialize memory mapping.
+ *
+ * @param phys_base The physical base address.
+ * @param size The size of the memory region.
+ * @return Pointer to the mapped memory.
+ */
 unsigned char* initialize_memory(uint32_t phys_base, size_t size) {
   unsigned char *mem_base = map_phys_address(phys_base, size, 0);
   if (mem_base == NULL) exit(1);
   return mem_base;
 }
-
+/**
+ * @brief Initialize the display.
+ *
+ * @param parlcd_mem_base Base address of the LCD memory.
+ * @return Pointer to the framebuffer.
+ */
 unsigned short* initialize_display(unsigned char* parlcd_mem_base) {
   unsigned short *fb = lcd_init(parlcd_mem_base);
   lcd_fill_screen(fb, lcd_color(255, 255, 255));
@@ -107,10 +123,26 @@ unsigned short* initialize_display(unsigned char* parlcd_mem_base) {
   return fb;
 }
 
+/**
+ * @brief Load an image from a file.
+ *
+ * @param file_path The path to the image file.
+ * @param gray_image Pointer to the grayscale image matrix.
+ * @param width Pointer to the width of the image.
+ * @param height Pointer to the height of the image.
+ */
 void load_image(const char* file_path, gsl_matrix** gray_image, int* width, int* height) {
   *gray_image = read_image(file_path, width, height);
 }
-
+/**
+ * @brief Transform an image using perspective transformation.
+ *
+ * @param src_mat Source matrix of points.
+ * @param dst_mat Destination matrix of points.
+ * @param H Homography matrix.
+ * @param width The width of the image.
+ * @param height The height of the image.
+ */
 void transform_image(gsl_matrix* src_mat, gsl_matrix* dst_mat, gsl_matrix* H, int width, int height) {
   gsl_matrix_set(src_mat, 0, 0, 0);        gsl_matrix_set(src_mat, 0, 1, 0);
   gsl_matrix_set(src_mat, 1, 0, width);    gsl_matrix_set(src_mat, 1, 1, 0);
@@ -125,6 +157,16 @@ void transform_image(gsl_matrix* src_mat, gsl_matrix* dst_mat, gsl_matrix* H, in
   compute_perspective_transform(src_mat, dst_mat, H);
 }
 
+/**
+ * @brief Capture points using the knobs and display.
+ *
+ * @param xs Array to store the x-coordinates of the points.
+ * @param ys Array to store the y-coordinates of the points.
+ * @param spiled_base Base address of the SPILED.
+ * @param fb Pointer to the framebuffer.
+ * @param formatted_image The formatted image matrix.
+ * @param parlcd_mem_base Base address of the LCD memory.
+ */
 void capture_points(uint16_t* xs, uint16_t* ys, unsigned char* spiled_base, unsigned short* fb, gsl_matrix* formatted_image, unsigned char* parlcd_mem_base) {
   uint16_t current_blue = *(spiled_base + BLUE_KNOB);
   uint16_t current_red = *(spiled_base + RED_KNOB);
@@ -167,13 +209,22 @@ void capture_points(uint16_t* xs, uint16_t* ys, unsigned char* spiled_base, unsi
     }
   }
 }
-
+/**
+ * @brief Save the transformed image to a file.
+ *
+ * @param image The transformed image matrix.
+ * @param filename The name of the output file.
+ */
 void save_transformed_image(const gsl_matrix* image, const char* filename) {
   clock_nanosleep(CLOCK_MONOTONIC, 0, &(struct timespec){.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000}, NULL);
   printf("Saving image\n");
   save_image(image, filename);
 }
-
+/**
+ * @brief Main function.
+ *
+ * @return Exit status.
+ */
 int main(void) {
   app_loop();
   return 0;

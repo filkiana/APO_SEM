@@ -1,5 +1,14 @@
+/**
+ * @file img_reader.c
+ * @brief Image reading and saving functions using JPEG format.
+ */
 #include "img_reader.h"
-// Helper function to read JPEG header and initialize decompression
+/**
+ * @brief Initialize JPEG decompression.
+ *
+ * @param cinfo Pointer to the JPEG decompression structure.
+ * @param infile Pointer to the input file.
+ */
 static void initialize_decompression(struct jpeg_decompress_struct *cinfo, FILE *infile) {
     struct jpeg_error_mgr jerr;
     cinfo->err = jpeg_std_error(&jerr);
@@ -9,7 +18,15 @@ static void initialize_decompression(struct jpeg_decompress_struct *cinfo, FILE 
     jpeg_start_decompress(cinfo);
 }
 
-// Helper function to convert a row of pixels to grayscale and store in the matrix
+/**
+ * @brief Convert a row of pixels to grayscale and store it in the matrix.
+ *
+ * @param buffer Buffer containing the pixel data.
+ * @param gray_image Matrix to store the grayscale image.
+ * @param row_stride The row stride of the image.
+ * @param row_index The current row index.
+ * @param width The width of the image.
+ */
 static void convert_row_to_grayscale(JSAMPARRAY buffer, gsl_matrix *gray_image, int row_stride, int row_index, int width) {
     for (int x = 0; x < width; x++) {
         unsigned char r = buffer[0][x * 3];
@@ -20,7 +37,14 @@ static void convert_row_to_grayscale(JSAMPARRAY buffer, gsl_matrix *gray_image, 
     }
 }
 
-// Helper function to initialize JPEG compression
+/**
+ * @brief Initialize JPEG compression.
+ *
+ * @param cinfo Pointer to the JPEG compression structure.
+ * @param outfile Pointer to the output file.
+ * @param width The width of the image.
+ * @param height The height of the image.
+ */
 static void initialize_compression(struct jpeg_compress_struct *cinfo, FILE *outfile, int width, int height) {
     struct jpeg_error_mgr jerr;
     cinfo->err = jpeg_std_error(&jerr);
@@ -36,13 +60,27 @@ static void initialize_compression(struct jpeg_compress_struct *cinfo, FILE *out
     jpeg_start_compress(cinfo, TRUE);
 }
 
-// Helper function to write a row of grayscale values from the matrix
+/**
+ * @brief Write a row of grayscale values from the matrix.
+ *
+ * @param row_pointer Pointer to the row data.
+ * @param image The grayscale image matrix.
+ * @param row_index The current row index.
+ * @param width The width of the image.
+ */
 static void write_grayscale_row(JSAMPROW row_pointer, const gsl_matrix *image, int row_index, int width) {
     for (int x = 0; x < width; x++) {
         row_pointer[x] = (unsigned char)gsl_matrix_get(image, row_index, x);
     }
 }
-
+/**
+ * @brief Read an image from a file and convert it to grayscale.
+ *
+ * @param filename The name of the image file.
+ * @param width Pointer to store the width of the image.
+ * @param height Pointer to store the height of the image.
+ * @return Pointer to the grayscale image matrix.
+ */
 gsl_matrix* read_image(const char *filename, int *width, int *height) {
     FILE *infile;
     if ((infile = fopen(filename, "rb")) == NULL) {
@@ -71,7 +109,12 @@ gsl_matrix* read_image(const char *filename, int *width, int *height) {
 
     return gray_image;
 }
-
+/**
+ * @brief Save a grayscale image to a file.
+ *
+ * @param image The grayscale image matrix.
+ * @param filename The name of the output file.
+ */
 void save_image(const gsl_matrix *image, const char *filename) {
     FILE *outfile;
     if ((outfile = fopen(filename, "wb")) == NULL) {
