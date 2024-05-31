@@ -25,36 +25,26 @@ This application is designed to scan documents by capturing a photograph of a te
 - **Git Project Link:**https://github.com/filkiana/APO_SEM
 
 ## Installation Manual
-0. **Download and build the dependencies:**
-   * https://www.gnu.org/software/gsl/
-   * https://www.ijg.org/
-    1. For LGSL: gsl.tar.gz
-    ```bash
-        tar -xvzf gsl.tar.gz
-        cd gsl
-        ./configure "CC=arm-linux-gnueabihf-gcc" 
-        make
-    ```
-    2. For LJPEG: jpegsrc.v9d.tar.gz
-    ```bash
-        tar -xvzf jpegsrc.v9d.tar.gz
-        cd jpeg-9d
-        ./configure "CC=arm-linux-gnueabihf-gcc" --prefix={DIR_WHERE_YOU_HAVE_THIS_LIBRARY}
-        make
-    ```
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/filkiana/APO_SEM
    cd APO_SEM
+   git checkout dev
    ```
-2. **Configure Makefile with the paths to the dependencies and board ip:**
+2. **Install LGSL and LJPEG Libraries:**
+    ```bash
+    chmod +x install.sh
+    ./install.sh
     ```
-    using your favorite text editor. 
+3. **Configure Makefile board ip:**
+    ```bash
+    vim Makefile
     ```
-3. **Build the Project:**
-   ```bash
+    Change the IP address in the `BOARD_IP` variable to the IP address of the MicroZed board. 
+4. **Build the Project:**
+    ```bash
    make
-   ``` 
+    ```
 
 ## User Manual
 
@@ -82,3 +72,27 @@ This application is designed to scan documents by capturing a photograph of a te
 
 This project demonstrates the integration of multiple hardware components (LCD display, knobs,RGB DIODA, SSH) and software libraries (LGSL, LJPEG) to create a functional document scanning application on the MicroZed platform. By leveraging user input and real-time image processing, the application provides a practical solution for capturing and processing document images.User gets commands on the display by font texts. The LED feedback system enhances user interaction, making the application intuitive and efficient. 
 Whole project written in C language and have nice modular structure. The code is well-documented and follows the coding style.The project is version-controlled using Git, with meaningful commit messages and a separate development branch. 
+
+
+## License
+MIT License
+
+Copyright (c) 2024 Anatolii Filkin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
