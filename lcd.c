@@ -49,20 +49,20 @@ void lcd_draw_pixel(unsigned short *fb, int x, int y, unsigned short color) {
  * @brief Draw a plus sign on the LCD.
  *
  * @param fb Pointer to the framebuffer.
- * @param current_x The x-coordinate of the center.
- * @param current_y The y-coordinate of the center.
+ * @param x The x-coordinate of the center.
+ * @param y The y-coordinate of the center.
  * @param color The color of the plus sign.
  */
-void lcd_draw_plus(unsigned short * fb, int current_x, int current_y, unsigned short color) {
+void lcd_draw_plus(unsigned short * fb, int x, int y, unsigned short color) {
 
-    lcd_draw_pixel(fb, current_x+1, current_y, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x-1, current_y, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x+2, current_y, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x-2, current_y, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x, current_y+1, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x, current_y-1, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x, current_y+2, lcd_color(127, 0, 0));
-    lcd_draw_pixel(fb, current_x, current_y-2, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x+1, y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x-1, y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x+2, y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x-2, y, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x, y+1, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x, y-1, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x, y+2, lcd_color(127, 0, 0));
+    lcd_draw_pixel(fb, x, y-2, lcd_color(127, 0, 0));
 }
 /**
  * @brief Update the LCD display with the framebuffer content.
