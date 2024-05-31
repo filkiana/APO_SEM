@@ -36,17 +36,10 @@ LDFLAGS += $(CXXFLAGS) $(CPPFLAGS)
 endif
 all:  $(TARGET_EXE) 
 
-gsl_build:
-	@export CC=$(CC) && export CXX=$(CXX)
-	@echo "Building GSL library..."
-	mkdir -p $(GSL_BUILD_DIR)
-	cd $(GSL_BUILD_DIR) && cmake .. -G"Unix Makefiles" -DNO_AMPL_BINDINGS=$(NO_AMPL_BINDINGS)
-	cd $(GSL_BUILD_DIR) && $(MAKE)
-
-%.o: %.c gsl_build
+%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-%.o: %.cpp gsl_build
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 
