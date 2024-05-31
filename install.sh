@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd APO_SEM
-git checkout dev
 # install the requirements
 # libjpeg
 echo "Installing libjpeg"
