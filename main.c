@@ -193,7 +193,7 @@ void capture_points(uint16_t* xs, uint16_t* ys, unsigned char* spiled_base, unsi
                    gsl_matrix_get(formatted_image, current_x, current_y),
                    gsl_matrix_get(formatted_image, current_x, current_y));
 
-    printf("x: %d, y: %d\n", current_x, current_y);
+    //printf("x: %d, y: %d\n", current_x, current_y);
     lcd_draw_plus(fb, current_x, current_y, lcd_color(127, 0, 0));
     lcd_update_display(fb, parlcd_mem_base);
 
